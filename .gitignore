@@ -63,3 +63,4 @@ target/
 
 # .idea/
 .idea/
+ask/db.sqlite3
