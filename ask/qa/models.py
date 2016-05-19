@@ -7,12 +7,12 @@ class Question(models.Model):
     text = models.TextField()
     added_at = models.DateTimeField(auto_now_add=True)
     rating = models.IntegerField()
-    author = models.ForeignKey(User)
-    likes = models.ManyToManyField(User)
+    author = models.ForeignKey(User, related_name='question_author_set')
+    likes = models.ManyToManyField(User, related_name='question_likes_set')
 
     class Meta:
         db_table = 'questions'
-        ordering = ['-creation_date']
+        ordering = ['-added_at']
 
 
 class Answer(models.Model):
