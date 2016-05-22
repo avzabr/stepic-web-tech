@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>{{ q.title|truncatechars:80 }}</h1>
+    <p>{{ q.text }}></p>
+    <ul>
+        {% for answer in answers %}
+            <li>answer</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
+
