@@ -1,7 +1,9 @@
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, render, get_object_or_404
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.core.paginator import Paginator, EmptyPage
+
+from qa.forms import AskForm, AnswerForm
 from qa.models import Question
 from django.http import Http404
 
@@ -50,8 +52,35 @@ def main(request, type=TYPE_NEW):
 @require_GET
 def question(request, id):
     q = get_object_or_404(Question, id=id)
+    form = AnswerForm(initial={'question': q.id})
 
     return render(request, 'question.html', {
         'q': q,
-        'answers': q.answer_set.all()[:]
+        'answers': q.answer_set.all()[:],
+        'form': form
     })
+
+
+def ask(request):
+    if request.method == 'POST':
+        form = AskForm(request.POST)
+        if form.is_valid():
+            q = form.save()
+            url = q.get_url()
+            return HttpResponseRedirect(url)
+    else:
+        form = AskForm()
+    return render(request, 'question_add.html', {
+        'form': form
+    })
+
+
+@require_POST
+def answer(request):
+    form = AnswerForm(request.POST)
+    if form.is_valid():
+        a = form.save()
+        url = a.question.get_url() + "?answer_added=True"
+    else:
+        url = '/question/' + form.data.get('question') + "?answer_added=False"
+    return HttpResponseRedirect(url)
