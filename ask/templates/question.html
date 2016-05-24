@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
     <h1>{{ q.title|truncatechars:80 }}</h1>
-    <p>{{ q.text }}</p>
+    <p>{{ q.text }} by [{{ q.author.username }}]</p>
     <ul>
         {% for answer in answers %}
-            <li>{{ answer }}</li>
+            <li>{{ answer }} by [{{ answer.author.username }}]</li>
         {% endfor %}
     </ul>
     {% include 'answer_add.html' %}

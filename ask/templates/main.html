@@ -5,7 +5,7 @@
 {% block content %}
     {% for q in q_list %}
         <div class="question">
-            <a href="{{ q.get_url }}">{{ q }}</a>
+            <a href="{{ q.get_url }}">{{ q }} [{{ q.author.username }}]</a>
         </div>
     {% endfor %}
     <nav>

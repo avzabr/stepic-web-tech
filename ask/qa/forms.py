@@ -1,9 +1,7 @@
 from django import forms
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
-from qa.models import Question, Answer
+from qa.models import Question, Answer, salt_and_hash, do_signup, do_login, Session
 
 
 class AskForm(forms.Form):
@@ -22,9 +20,8 @@ class AskForm(forms.Form):
             raise forms.ValidationError('text text is wrong', code=12)
         return text
 
-    def save(self):
-        u, _ = User.objects.get_or_create(first_name='Unknown', last_name='Unknown')
-        q = Question(author=u, **self.cleaned_data)
+    def save(self, user):
+        q = Question(author=user, **self.cleaned_data)
         q.save()
         return q
 
@@ -39,9 +36,30 @@ class AnswerForm(forms.Form):
             raise forms.ValidationError('text text is wrong', code=12)
         return text
 
-    def save(self):
-        u, _ = User.objects.get_or_create(first_name='Unknown', last_name='Unknown')
+    def save(self, user):
         q = get_object_or_404(Question, id=self.cleaned_data['question'])
-        a = Answer(author=u, question=q, text=self.cleaned_data['text'])
+        a = Answer(author=user, question=q, text=self.cleaned_data['text'])
         a.save()
         return a
+
+
+class SignUpForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+    email = forms.EmailField()
+
+    def save(self):
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+        email = self.cleaned_data['email']
+        return do_signup(username=username, password=salt_and_hash(password), email=email)
+
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    def save(self):
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+        return do_login(username=username, password=salt_and_hash(password))
